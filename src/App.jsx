@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 
 import CharacterCreator from "./features/party/CharacterCreator";
+import Navbar from "./components/Navbar";
 
 import "./App.css";
 
@@ -9,6 +10,7 @@ function App() {
 
   return (
     <div>
+      <Navbar />
       <CharacterCreator />
       {/* <div className="flex w-full justify-evenly">
         {characters.map((character) =>
