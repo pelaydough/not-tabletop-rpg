@@ -3,7 +3,7 @@ import { useState } from "react";
 import lightning from "../../assets/lightning.svg";
 import heart from "../../assets/heart.svg";
 
-const CharacterCreator = () => {
+const CharacterCreator = ({ recruitingCharacter, setRecruitingCharacter }) => {
   const [character, setCharacter] = useState({
     name: "",
     stats: [
@@ -655,11 +655,19 @@ const CharacterCreator = () => {
     },
   ];
 
+  const calculateHealth = (bodyValue) => {
+    return 150 + 50 * bodyValue;
+  };
+
+  const calculateEnergy = (focusValue) => {
+    return 75 + 25 * focusValue;
+  };
+
   const handleClassClick = (characterClass) => {
     // First, reset stats to base value
     let updatedStats = character.stats.map((stat) => ({
       ...stat,
-      value: 3, // Reset to base value
+      value: 3,
     }));
 
     // Apply the new class's stat bonuses
@@ -690,10 +698,16 @@ const CharacterCreator = () => {
       });
     }
 
+    // Calculate new health and energy based on updated stats
+    const bodyValue = updatedStats.find((stat) => stat.name === "Body").value;
+    const focusValue = updatedStats.find((stat) => stat.name === "Focus").value;
+
     setCharacter({
       ...character,
       class: characterClass,
       stats: updatedStats,
+      healthPoints: calculateHealth(bodyValue),
+      energyPoints: calculateEnergy(focusValue),
     });
   };
 
@@ -732,7 +746,7 @@ const CharacterCreator = () => {
     // First, reset stats to base value
     let updatedStats = character.stats.map((stat) => ({
       ...stat,
-      value: 3, // Reset to base value
+      value: 3,
     }));
 
     // Apply the background's stat bonuses
@@ -763,10 +777,16 @@ const CharacterCreator = () => {
       });
     }
 
+    // Calculate new health and energy based on updated stats
+    const bodyValue = updatedStats.find((stat) => stat.name === "Body").value;
+    const focusValue = updatedStats.find((stat) => stat.name === "Focus").value;
+
     setCharacter({
       ...character,
       background: background,
       stats: updatedStats,
+      healthPoints: calculateHealth(bodyValue),
+      energyPoints: calculateEnergy(focusValue),
     });
   };
 
@@ -777,9 +797,19 @@ const CharacterCreator = () => {
     });
   };
 
+  // Add this helper function to check if all requirements are met
+  const isCharacterComplete = () => {
+    return (
+      character.class !== null &&
+      character.race !== null &&
+      character.background !== null &&
+      character.name.trim() !== ""
+    );
+  };
+
   return (
     <div className="bg-slate-100 h-screen w-full flex flex-col items-center justify-center">
-      {(character.class || character.race || character.background) && (
+      {character.class || character.race || character.background ? (
         <div className="bg-gray-200 p-2 border-2 border-gray-400 rounded">
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -835,6 +865,10 @@ const CharacterCreator = () => {
             </div>
           </div>
         </div>
+      ) : (
+        <h2 className="font-thin text-lg">
+          Start by selecting any class/race/background!
+        </h2>
       )}
 
       <div className="fixed left-0 flex flex-col ml-5 gap-2">
@@ -985,6 +1019,23 @@ const CharacterCreator = () => {
           ))}
         </div>
       </div>
+      <button
+        disabled={!isCharacterComplete()}
+        className={`fixed right-0 bottom-0 mb-8 mr-12 p-2 rounded font-thin transition-colors
+          ${
+            isCharacterComplete()
+              ? "bg-gray-200 hover:bg-gray-300 cursor-pointer"
+              : "bg-gray-100 text-gray-400 cursor-not-allowed"
+          }`}
+      >
+        Recruit this party member!
+      </button>
+      <button
+        onClick={() => setRecruitingCharacter("")}
+        className="fixed left-0 bottom-0 ml-12 mb-8 p-2 rounded font-thin bg-gray-200 hover:bg-gray-300 cursor-pointer"
+      >
+        Go Back!
+      </button>
     </div>
   );
 };
